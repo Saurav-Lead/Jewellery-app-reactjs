@@ -1,0 +1,16 @@
+.catalog-container {
+  min-height: 100vh !important;
+  padding: 50px 5%;
+  /* High-visibility colorful gradient */
+  background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%) !important;
+  font-family: 'Poppins', sans-serif !important;
+  display: block !important;
+}
+
+/* Force the cards to have color */
+.product-card {
+  background: white !important;
+  border-radius: 20px !important;
+  border: 2px solid #ff4d6d !important; /* Bright pink border */
+  box-shadow: 0 10px 20px rgba(245, 87, 108, 0.2) !important;
+}
