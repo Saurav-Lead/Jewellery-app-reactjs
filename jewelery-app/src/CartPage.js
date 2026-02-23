@@ -57,9 +57,10 @@ const CartPage = ({ cart, setCart }) => {
             </button>
           )}
           
-          <button className="back-btn-nav" onClick={() => navigate(-1)}>Back to Shopping</button>
+         
         </div>
       </nav>
+       <button className="back-btn" onClick={() => navigate(-1)}>Back to Shopping</button>
 
       <div className="cart-layout">
         <div className="cart-items-section">

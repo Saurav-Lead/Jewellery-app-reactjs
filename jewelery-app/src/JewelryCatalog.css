@@ -296,19 +296,41 @@
   gap: 25px;
 }
 
+/* Navigation Button - Consistent with Poppins and App Palette */
 .nav-btn {
-  background: none;
-  border: 1px solid #1a1a1a;
-  padding: 8px 20px;
+  background: #ffffff; /* Explicitly set white to override browser defaults */
+  border: 1.5px solid #1a1a1a;
+  padding: 8px 22px;
   border-radius: 50px;
+  font-family: 'Poppins', sans-serif; /* Ensures it matches the rest of the site */
   font-weight: 600;
+  font-size: 0.9rem;
+  color: #1a1a1a;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap; /* Prevents text from wrapping inside the button */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-btn:hover {
   background: #1a1a1a;
-  color: white;
+  color: #ffffff;
+  transform: translateY(-2px); /* Subtle lift effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn:active {
+  transform: translateY(0);
+}
+
+/* Specific Mobile Tweak for the Navbar Button */
+@media (max-width: 768px) {
+  .nav-btn {
+    padding: 6px 16px;
+    font-size: 0.8rem;
+  }
 }
 
 .cart-icon {
@@ -467,15 +489,48 @@
   background: #fcfcfc;
 }
 
+/* Container to clip the zoom effect and handle spacing */
+.product-image-showcase {
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden; /* Important: Clips the scale(1.05) zoom inside the box */
+  background: #fcfcfc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .detail-main-image {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain; /* Ensures the jewelry is never cut off */
   display: block;
   transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.detail-main-image:hover {
-  transform: scale(1.05); /* Soft zoom on the jewelry */
+/* Mobile Specific Fixes */
+@media (max-width: 768px) {
+  .product-image-showcase {
+    max-height: 350px; /* Prevents the image from taking over the whole screen */
+    margin-bottom: 20px;
+  }
+  
+  .detail-main-image {
+    /* Slightly faster transition for mobile touch */
+    transition: transform 0.3s ease; 
+  }
+
+  /* Disable zoom on hover for mobile to prevent weird "shaking" on touch */
+  .detail-main-image:hover {
+    transform: none; 
+  }
+}
+
+/* Desktop Hover */
+@media (min-width: 769px) {
+  .detail-main-image:hover {
+    transform: scale(1.05);
+  }
 }
 
 /* Typography & Info */
