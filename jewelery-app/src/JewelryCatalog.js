@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
 import './JewelryCatalog.css';
+import HeritageSkeleton from './HeritageSkeleton';
 
 const JewelryCatalog = ({ cartCount }) => {
   const [products, setProducts] = useState([]);
@@ -57,7 +58,7 @@ const JewelryCatalog = ({ cartCount }) => {
       return 0;
     });
 
-  if (loading) return <div className="loader">Refining Collection...</div>;
+  
 
   return (
     <div className="catalog-container">
@@ -108,29 +109,35 @@ const JewelryCatalog = ({ cartCount }) => {
         </div>
       </div>
       <div className="product-grid">
-        {filteredProducts.map((item) => (
-          <div key={item.productId} className="product-card">
-            <div className="product-image-container">
-              <img 
-                src={item.imageUrl || 'https://via.placeholder.com/300'} 
-                alt={item.productName} 
-                className="product-image"
-              />
-            </div>
-            <div className="metal-badge">{item.metalPurity} {item.metalType}</div>
-            <div className="product-info">
-              <h3>{item.productName}</h3>
-              <p className="category">{item.category?.name || 'Fine Jewelry'}</p>
-              <div className="price-tag">
-                ${Number(item.shelfPrice || item.ShelfPrice || 0).toLocaleString()}
-              </div>
-              <button className="view-btn" onClick={() => navigate(`/product/${item.productId}`)}>
-                View Details
-              </button>
-            </div>
+  {loading ? (
+    /* Render 8 skeletons while waiting for the Spring Boot API */
+    <HeritageSkeleton type="card" count={8} />
+  ) : (
+    /* Render actual products once loading is false */
+    filteredProducts.map((item) => (
+      <div key={item.productId} className="product-card">
+        <div className="product-image-container">
+          <img 
+            src={item.imageUrl || 'https://via.placeholder.com/300'} 
+            alt={item.productName} 
+            className="product-image"
+          />
+        </div>
+        <div className="metal-badge">{item.metalPurity} {item.metalType}</div>
+        <div className="product-info">
+          <h3>{item.productName}</h3>
+          <p className="category">{item.category?.name || 'Fine Jewelry'}</p>
+          <div className="price-tag">
+            ${Number(item.shelfPrice || item.ShelfPrice || 0).toLocaleString()}
           </div>
-        ))}
+          <button className="view-btn" onClick={() => navigate(`/product/${item.productId}`)}>
+            View Details
+          </button>
+        </div>
       </div>
+    ))
+  )}
+</div>
       {filteredProducts.length === 0 && <p className="no-results">No jewelry matches your refined search.</p>}
     </div>
   );

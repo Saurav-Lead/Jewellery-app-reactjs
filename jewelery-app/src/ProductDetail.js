@@ -5,6 +5,9 @@ import { VaultService } from './VaultService';
 import './JewelryCatalog.css';
 import './Vault.css';
 import Navbar from './Navbar';
+import HeritageSkeleton from './HeritageSkeleton';
+import Skeleton from 'react-loading-skeleton'; // Add this line
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const ProductDetail = ({ addToCart, cartCount }) => {
   const { id } = useParams();
@@ -74,7 +77,7 @@ const ProductDetail = ({ addToCart, cartCount }) => {
     navigate('/cart');
   };
 
-  if (!product) return <div className="loader">Loading Masterpiece...</div>;
+  
 
   return (
     <div className="catalog-container"> 
@@ -85,51 +88,86 @@ const ProductDetail = ({ addToCart, cartCount }) => {
       </button>
       
       <div className="product-detail-layout">
-        <div className="product-image-showcase">
-          <img 
-            src={product.imageUrl || 'https://via.placeholder.com/500x500?text=Jewelry+Image'} 
-            alt={product.productName} 
-            className="detail-main-image"
-          />
+  {!product ? (
+    /* --- SKELETON LOADING STATE --- */
+    <>
+      <div className="product-image-showcase">
+        {/* Large square placeholder for the main jewelry image */}
+        <HeritageSkeleton type="card" count={1} />
+      </div>
+
+      <div className="product-info-panel">
+        <Skeleton width={100} height={20} /> {/* Category Tag */}
+        <Skeleton width="80%" height={40} style={{ margin: '15px 0' }} /> {/* Title */}
+        <Skeleton width={120} height={35} /> {/* Price Tag */}
+        
+        <div className="specs-grid-detail" style={{ marginTop: '20px' }}>
+          <Skeleton width={80} height={40} />
+          <Skeleton width={80} height={40} />
+          <Skeleton width={80} height={40} />
         </div>
 
-        <div className="product-info-panel">
-          <span className="category-tag">{product.category?.categoryName || 'Fine Jewelry'}</span>
-          <h1 className="detail-title">{product.productName}</h1>
-          
-          <div className="price-tag-large">
-             ${Number(product.ShelfPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-          </div>
+        <div style={{ marginTop: '20px' }}>
+          <HeritageSkeleton type="text" count={1} /> {/* Description block */}
+        </div>
 
-          <div className="specs-grid-detail">
-            <div className="spec-item"><strong>Metal</strong> {product.metalType}</div>
-            <div className="spec-item"><strong>Purity</strong> {product.metalPurity}</div>
-            <div className="spec-item"><strong>Weight</strong> {product.metalWeightGrams}g</div>
-          </div>
-
-          <p className="product-description">
-            Experience the elegance of the {product.productName}. This piece is meticulously 
-            crafted in {product.metalType} ({product.metalPurity}), weighing approximately {product.metalWeightGrams} grams.
-          </p>
-
-          <div className="action-buttons">
-            <button className="buy-now-btn" onClick={handleBuyNow}>
-              Buy Now
-            </button>
-            <button className="add-cart-btn-outline" onClick={() => addToCart(product)}>
-              Add to Cart
-            </button>
-            
-            <button 
-              className={`vault-btn ${isSaved ? 'saved' : ''}`} 
-              onClick={handleAddToVault}
-              disabled={isSaved || vaultLoading}
-            >
-              {vaultLoading ? 'Saving...' : isSaved ? '🏛️ In Your Vault' : '✨ Save to Vault'}
-            </button>
-          </div>
+        <div className="action-buttons" style={{ marginTop: '30px', display: 'flex', gap: '10px' }}>
+          <Skeleton width={120} height={45} borderRadius={5} />
+          <Skeleton width={120} height={45} borderRadius={5} />
+          <Skeleton width={150} height={45} borderRadius={5} />
         </div>
       </div>
+    </>
+  ) : (
+    /* --- ACTUAL PRODUCT CONTENT --- */
+    <>
+      <div className="product-image-showcase">
+        <img 
+          src={product.imageUrl || 'https://via.placeholder.com/500x500?text=Jewelry+Image'} 
+          alt={product.productName} 
+          className="detail-main-image"
+        />
+      </div>
+
+      <div className="product-info-panel">
+        <span className="category-tag">{product.category?.categoryName || 'Fine Jewelry'}</span>
+        <h1 className="detail-title">{product.productName}</h1>
+        
+        <div className="price-tag-large">
+           ${Number(product.ShelfPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </div>
+
+        <div className="specs-grid-detail">
+          <div className="spec-item"><strong>Metal</strong> {product.metalType}</div>
+          <div className="spec-item"><strong>Purity</strong> {product.metalPurity}</div>
+          <div className="spec-item"><strong>Weight</strong> {product.metalWeightGrams}g</div>
+        </div>
+
+        <p className="product-description">
+          Experience the elegance of the {product.productName}. This piece is meticulously 
+          crafted in {product.metalType} ({product.metalPurity}), weighing approximately {product.metalWeightGrams} grams.
+        </p>
+
+        <div className="action-buttons">
+          <button className="buy-now-btn" onClick={handleBuyNow}>
+            Buy Now
+          </button>
+          <button className="add-cart-btn-outline" onClick={() => addToCart(product)}>
+            Add to Cart
+          </button>
+          
+          <button 
+            className={`vault-btn ${isSaved ? 'saved' : ''}`} 
+            onClick={handleAddToVault}
+            disabled={isSaved || vaultLoading}
+          >
+            {vaultLoading ? 'Saving...' : isSaved ? '🏛️ In Your Vault' : '✨ Save to Vault'}
+          </button>
+        </div>
+      </div>
+    </>
+  )}
+</div>
     </div>
   );
 };

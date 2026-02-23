@@ -4,6 +4,9 @@ import { VaultService } from './VaultService';
 import './Vault.css';
 import './JewelryCatalog.css';
 import Navbar from './Navbar';
+import HeritageSkeleton from './HeritageSkeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+
 const VaultPage = ({ cartCount }) => {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -11,14 +14,12 @@ const VaultPage = ({ cartCount }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // 1. Sync User Session
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       const currentUser = JSON.parse(savedUser);
       setUser(currentUser);
       loadVault(currentUser.userId);
     } else {
-      // If no user, redirect to login
       navigate('/login');
     }
   }, [navigate]);
@@ -30,6 +31,7 @@ const VaultPage = ({ cartCount }) => {
     } catch (err) {
       console.error("Failed to fetch vault items", err);
     } finally {
+      // Small timeout can be added here if you want to test the skeleton pulse
       setLoading(false);
     }
   };
@@ -47,20 +49,12 @@ const VaultPage = ({ cartCount }) => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    navigate('/');
-  };
-
-  if (loading) return <div className="loader">Opening your private vault...</div>;
+  // REMOVED: The "if (loading) return loader" line to allow Skeletons to show below
 
   return (
     <div className="catalog-container">
-      {/* --- SHARED NAVBAR --- */}
-      
       <Navbar cartCount={cartCount} />
-      {/* --- VAULT CONTENT --- */}
+      
       <div className="vault-wrapper">
         <button className="back-btn" onClick={() => navigate('/')}>
           Back to Collection
@@ -71,21 +65,28 @@ const VaultPage = ({ cartCount }) => {
           <p>Curated masterpieces saved for your consideration.</p>
         </header>
 
-        {items.length === 0 ? (
+        {loading ? (
+          /* --- SKELETON STATE --- */
+          <div className="vault-grid">
+            <HeritageSkeleton type="card" count={4} />
+          </div>
+        ) : items.length === 0 ? (
+          /* --- EMPTY STATE --- */
           <div className="empty-vault">
             <p>Your vault is currently empty.</p>
             <button className="browse-btn" onClick={() => navigate('/')}>Browse Gems</button>
           </div>
         ) : (
+          /* --- DATA STATE --- */
           <div className="vault-grid">
             {items.map((item) => (
               <div key={item.vaultItemId} className="vault-item-card">
                 <div className="vault-img-wrapper" onClick={() => navigate(`/product/${item.productId}`)}>
-                  <img src={item.imageUrl} alt={item.productName} />
+                  <img src={item.imageUrl || 'https://via.placeholder.com/300'} alt={item.productName} />
                   <button 
                     className="delete-overlay-btn" 
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevents navigating to product detail
+                      e.stopPropagation();
                       handleRemove(item.productId);
                     }}
                   >
@@ -96,7 +97,9 @@ const VaultPage = ({ cartCount }) => {
                 <div className="vault-item-info">
                   <h3>{item.productName}</h3>
                   <span className="metal-tag">{item.metalType}</span>
-                  <p className="vault-item-price">${item.ShelfPrice?.toLocaleString()}</p>
+                  <p className="vault-item-price">
+                    ${Number(item.ShelfPrice || 0).toLocaleString()}
+                  </p>
                   <button className="view-product-btn" onClick={() => navigate(`/product/${item.productId}`)}>
                     View Masterpiece
                   </button>
