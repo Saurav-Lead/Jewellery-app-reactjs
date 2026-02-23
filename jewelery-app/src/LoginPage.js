@@ -38,17 +38,19 @@ const LoginPage = () => {
   return (
     <div className="catalog-container login-wrapper">
       <nav className="navbar">
+        <div className="nav-main-row">
         <div className="nav-logo" onClick={() => navigate('/')}>
           HERITAGE<span>GEMS</span>
         </div>
+        </div>
       </nav>
-
+      <div className="login-card-container">
       <div className="login-card">
         <div className="login-header">
           <h2>Member Login</h2>
           <p>Access your vault and orders</p>
         </div>
-
+       
         <form onSubmit={handleLogin}>
           <div className="form-group">
             <label>Email Address</label>
@@ -80,6 +82,7 @@ const LoginPage = () => {
         <div className="login-footer">
           <p>New to Heritage Gems? <span onClick={() => navigate('/register')}>Create Account</span></p>
         </div>
+      </div>
       </div>
     </div>
   );

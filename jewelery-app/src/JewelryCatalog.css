@@ -333,10 +333,24 @@
   }
 }
 
-.cart-icon {
-  font-size: 1.5rem;
+.cart-icon, 
+.hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;  /* Fixed touch area */
+  height: 40px; /* Fixed touch area */
+  font-size: 1.5rem !important; /* Forces same size */
   cursor: pointer;
-  position: relative;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.cart-icon {
+  position: relative; /* Keep for the badge */
 }
 
 .cart-count {
@@ -349,15 +363,8 @@
   padding: 2px 6px;
   border-radius: 50%;
   font-weight: bold;
+  /* Adjust badge to not float too far away since we fixed icon width */
 }
-/* Cart Layout */
-.cart-layout {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 40px;
-  margin-top: 20px;
-}
-
 @media (max-width: 900px) {
   .cart-layout { grid-template-columns: 1fr; }
 }
@@ -792,23 +799,17 @@
   }
 
   .nav-main-row {
-    width: 100%;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
   }
 
   .nav-mobile-icons {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
- .hamburger {
-    color: #1a1a1a !important; /* Forces it to Black */
-    background: none;
-    border: none;
-    outline: none;
-    -webkit-tap-highlight-color: transparent; /* Removes the blue flash on mobile tap */
-  }
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Consistent spacing */
+}
 
   .nav-links-container {
     display: none; /* Hidden until menuOpen is true */
@@ -858,29 +859,37 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
-/* Subtle gold glow on focus */
-.search-bar-standalone input:focus {
-  outline: none;
-  border-color: #D4AF37;
-  box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
-  transform: translateY(-2px);
+/* --- SEARCH BAR FIX --- */
+.search-bar-standalone {
+  width: 90%;
+  max-width: 600px;
+  margin: 40px auto;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-/* Placeholder styling */
-.search-bar-standalone input::placeholder {
-  color: #b2bec3;
-  font-weight: 300;
+.search-bar-standalone input {
+  width: 100%;
+  padding: 18px 60px; /* Equal padding on both sides to keep text centered */
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  text-align: center; 
+  border-radius: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-/* Search icon positioning inside the bar */
 .search-bar-standalone::after {
   content: '🔍';
   position: absolute;
-  right: 45px;
+  right: 25px; /* Fixed position on the right */
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.2rem;
-  pointer-events: none; /* Allows clicking the input through the icon */
+  pointer-events: none;
   opacity: 0.5;
 }
 
@@ -932,4 +941,63 @@
 }
 .cart-page-view .navbar .cart-icon {
   display: none !important;
+}
+.login-card-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .login-wrapper .navbar {
+    padding-left: 15px;
+    height: auto;
+    min-height: 70px;
+  }
+  login-card-container {
+    padding-left: 15px;
+    padding-top: 30px; /* Even smaller gap for mobile screens */
+    min-height: auto; /* Allow the page to scroll naturally */
+  }
+  
+  .login-card {
+    padding: 25px;
+    margin-top: 10px;
+  }
+
+  .login-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .login-submit-btn {
+    padding: 16px;
+    font-size: 1rem;
+  }
+
+}
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 18px; /* Larger hit area for mobile */
+  border: 1px solid #eee;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box; /* Crucial for mobile alignment */
 }
