@@ -45,7 +45,7 @@ const [user, setUser] = useState(null);
       <Routes>
         <Route path="/" element={<JewelryCatalog cartCount={cart.length} />} />
         <Route path="/product/:id" element={<ProductDetail addToCart={addToCart} cartCount={cart.length} />} />
-        <Route path="/cart" element={<CartPage cart={cart} setCart={setCart} />} />
+        <Route path="/cart" element={<CartPage cartCount={cart.length} cart={cart} setCart={setCart} />} />
         <Route path="/" element={<JewelryCatalog cartCount={cart.length} />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

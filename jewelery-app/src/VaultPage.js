@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { VaultService } from './VaultService';
 import './Vault.css';
 import './JewelryCatalog.css';
-
+import Navbar from './Navbar';
 const VaultPage = ({ cartCount }) => {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -58,28 +58,8 @@ const VaultPage = ({ cartCount }) => {
   return (
     <div className="catalog-container">
       {/* --- SHARED NAVBAR --- */}
-      <nav className="navbar">
-        <div className="nav-logo" onClick={() => navigate('/')}>
-          HERITAGE<span>GEMS</span>
-        </div>
-        
-        <div className="nav-actions">
-          {user ? (
-            <div className="user-nav-section">
-              <span className="welcome-msg">Hi, {user.fullName.split(' ')[0]}</span>
-              <button className="view-vault-nav-btn active">🏛️ My Vault</button>
-              <button className="logout-btn" onClick={handleLogout}>Logout</button>
-            </div>
-          ) : (
-            <button className="nav-btn" onClick={() => navigate('/login')}>Login</button>
-          )}
-
-          <div className="cart-icon" onClick={() => navigate('/cart')}>
-            🛒 <span className="cart-count">{cartCount}</span>
-          </div>
-        </div>
-      </nav>
-
+      
+      <Navbar cartCount={cartCount} />
       {/* --- VAULT CONTENT --- */}
       <div className="vault-wrapper">
         <button className="back-btn" onClick={() => navigate('/')}>

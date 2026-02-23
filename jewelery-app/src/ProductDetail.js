@@ -4,6 +4,7 @@ import axios from 'axios';
 import { VaultService } from './VaultService'; 
 import './JewelryCatalog.css';
 import './Vault.css';
+import Navbar from './Navbar';
 
 const ProductDetail = ({ addToCart, cartCount }) => {
   const { id } = useParams();
@@ -77,35 +78,8 @@ const ProductDetail = ({ addToCart, cartCount }) => {
 
   return (
     <div className="catalog-container"> 
-      <nav className="navbar">
-        <div className="nav-logo" onClick={() => navigate('/')}>
-          HERITAGE<span>GEMS</span>
-        </div>
-        
-        <div className="nav-actions">
-          {user ? (
-            <div className="user-nav-section">
-              <span className="welcome-msg">Hi, {user.fullName.split(' ')[0]}</span>
-              
-              {/* --- NEW VIEW VAULT ACTION --- */}
-              <button className="view-vault-nav-btn" onClick={() => navigate('/vault')}>
-                🏛️ My Vault
-              </button>
-              
-              <button className="logout-btn" onClick={handleLogout}>Logout</button>
-            </div>
-          ) : (
-            <button className="nav-btn" onClick={() => navigate('/login')}>
-              Login
-            </button>
-          )}
-
-          <div className="cart-icon" onClick={() => navigate('/cart')}>
-            🛒 <span className="cart-count">{cartCount}</span>
-          </div>
-        </div>
-      </nav>
-
+     
+     <Navbar cartCount={cartCount} />
       <button className="back-btn" onClick={() => navigate(-1)}>
         Back to Collection
       </button>

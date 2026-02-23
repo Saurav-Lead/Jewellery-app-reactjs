@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from './Navbar';
 import './JewelryCatalog.css';
 
 const JewelryCatalog = ({ cartCount }) => { 
@@ -48,43 +49,16 @@ const JewelryCatalog = ({ cartCount }) => {
 
   return (
     <div className="catalog-container">
-      <nav className="navbar">
-        <div className="nav-logo" onClick={() => navigate('/')}>
-          HERITAGE<span>GEMS</span>
-        </div>
+      <Navbar cartCount={cartCount} />
 
-        <div className="search-container">
-          <input 
+      <div className="search-bar-standalone">
+         <input 
             type="text" 
             placeholder="Search for gold, diamonds, rings..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <span className="search-icon">🔍</span>
-        </div>
-
-        <div className="nav-actions">
-          {/* 4. Conditional Rendering: Show Name + Logout OR Login button */}
-          {user ? (
-            <div className="user-nav-section">
-              <span className="welcome-msg">Hi, {user.fullName.split(' ')[0]}</span>
-              {/* --- NEW VIEW VAULT ACTION --- */}
-              <button className="view-vault-nav-btn" onClick={() => navigate('/vault')}>
-                🏛️ My Vault
-              </button>
-              <button className="logout-btn" onClick={handleLogout}>Logout</button>
-            </div>
-          ) : (
-            <button className="nav-btn" onClick={() => navigate('/login')}>
-              Login
-            </button>
-          )}
-
-          <div className="cart-icon" onClick={() => navigate('/cart')}>
-            🛒 <span className="cart-count">{cartCount}</span>
-          </div>
-        </div>
-      </nav>
+      </div>
 
       <header className="catalog-header">
         <h1>{searchTerm ? `Results for "${searchTerm}"` : "The Heritage Collection"}</h1>

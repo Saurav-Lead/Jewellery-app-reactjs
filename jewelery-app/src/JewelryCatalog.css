@@ -776,3 +776,158 @@
     order: 2; /* Second */
   }
 }
+.nav-main-row { display: flex; align-items: center; }
+.nav-mobile-icons { display: none; } /* Hidden on desktop */
+
+.nav-links-container {
+  display: flex;
+  align-items: center;
+}
+
+/* --- Mobile Navbar (Max 768px) --- */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-main-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-mobile-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .hamburger {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .nav-links-container {
+    display: none; /* Hidden until menuOpen is true */
+    width: 100%;
+    padding-top: 20px;
+  }
+
+  .nav-links-container.show {
+    display: block;
+  }
+
+  .nav-actions {
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .desktop-only { display: none; }
+  
+  .user-nav-section {
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+  }
+}
+/* Container to center the bar on the page */
+.search-bar-standalone {
+  width: 100%;
+  max-width: 600px;
+  margin: 40px auto; /* Space it out from the Navbar and Header */
+  padding: 0 20px;
+  position: relative;
+}
+
+.search-bar-standalone input {
+  width: 100%;
+  padding: 18px 25px;
+  padding-right: 60px; /* Space for the search icon */
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  border-radius: 50px; /* Pill shape */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #2d3436;
+}
+
+/* Subtle gold glow on focus */
+.search-bar-standalone input:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Placeholder styling */
+.search-bar-standalone input::placeholder {
+  color: #b2bec3;
+  font-weight: 300;
+}
+
+/* Search icon positioning inside the bar */
+.search-bar-standalone::after {
+  content: '🔍';
+  position: absolute;
+  right: 45px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  pointer-events: none; /* Allows clicking the input through the icon */
+  opacity: 0.5;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .search-bar-standalone {
+    margin: 25px auto;
+    max-width: 90%;
+  }
+  
+  .search-bar-standalone input {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}
+/* Container for Logo + Welcome Message */
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.welcome-msg-inline {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #666;
+  border-left: 1px solid #ddd;
+  padding-left: 12px;
+  white-space: nowrap;
+}
+
+/* --- Mobile Specific Tweaks --- */
+@media (max-width: 768px) {
+  .nav-logo {
+    font-size: 1.2rem; /* Slightly smaller logo to make room for name */
+  }
+
+  .welcome-msg-inline {
+    font-size: 0.75rem;
+    padding-left: 8px;
+    gap: 8px;
+  }
+}
+
+/* Hide the desktop-only version in the actions if you moved it inline */
+.user-nav-section .welcome-msg {
+  display: none;
+}
+.cart-page-view .navbar .cart-icon {
+  display: none !important;
+}
