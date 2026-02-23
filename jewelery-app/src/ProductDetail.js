@@ -8,6 +8,7 @@ import Navbar from './Navbar';
 import HeritageSkeleton from './HeritageSkeleton';
 import Skeleton from 'react-loading-skeleton'; // Add this line
 import 'react-loading-skeleton/dist/skeleton.css';
+import GemQRCode from './GemQRCode';
 
 const ProductDetail = ({ addToCart, cartCount }) => {
   const { id } = useParams();
@@ -147,7 +148,16 @@ const ProductDetail = ({ addToCart, cartCount }) => {
           Experience the elegance of the {product.productName}. This piece is meticulously 
           crafted in {product.metalType} ({product.metalPurity}), weighing approximately {product.metalWeightGrams} grams.
         </p>
-
+        <div className="qr-section" style={{ background: '#f9f9f9', borderRadius: '8px', marginTop: '20px' }}>
+    <GemQRCode productId={product.productId} productName={product.productName} />
+    <button 
+      className="view-btn" 
+      onClick={() => window.print()} 
+      style={{ margin: '0 auto 20px', display: 'block' }}
+    >
+      Print Certificate QR
+    </button>
+  </div>
         <div className="action-buttons">
           <button className="buy-now-btn" onClick={handleBuyNow}>
             Buy Now
