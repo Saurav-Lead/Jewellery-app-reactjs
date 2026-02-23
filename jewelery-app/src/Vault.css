@@ -1,0 +1,182 @@
+/* --- Container Setup --- */
+.vault-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+.vault-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.vault-header h1 {
+  font-size: 2rem;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+/* --- The Grid (Mobile First) --- */
+.vault-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 column on mobile */
+  gap: 25px;
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 600px) {
+  .vault-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: 3 to 4 columns */
+@media (min-width: 1024px) {
+  .vault-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* --- Vault Card --- */
+.vault-item-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.vault-item-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Image Handling --- */
+.vault-img-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* Square aspect ratio */
+  background: #f9f9f9;
+}
+
+.vault-img-wrapper img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Delete Button Overlay --- */
+.delete-overlay-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #ff4d4d;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 2;
+}
+
+.delete-overlay-btn:hover {
+  background: #ff4d4d;
+  color: white;
+}
+
+/* --- Product Info --- */
+.vault-item-info {
+  padding: 20px;
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vault-item-info h3 {
+  font-size: 1.1rem;
+  margin: 0 0 8px;
+  color: #222;
+}
+
+.metal-tag {
+  display: inline-block;
+  background: #f0f0f0;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.vault-item-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #D4AF37; /* Luxury Gold */
+  margin-bottom: 15px;
+}
+
+.vault-item-note {
+  font-style: italic;
+  color: #777;
+  font-size: 0.85rem;
+  background: #fffdf5;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.view-product-btn {
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+
+.view-product-btn:hover {
+  background: #D4AF37;
+}
+
+/* --- Status Messages --- */
+.vault-status, .empty-vault {
+  text-align: center;
+  padding: 100px 20px;
+  font-size: 1.2rem;
+  color: #888;
+}
+
+.browse-btn {
+  margin-top: 20px;
+  padding: 12px 30px;
+  background: #D4AF37;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

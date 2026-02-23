@@ -578,32 +578,32 @@
 }
 
 /* Action Buttons */
-.action-buttons {
+.action-buttons button {
+  flex: 1;             /* Makes all buttons the same width */
+  padding: 18px;       /* Identical height */
+  border-radius: 12px; /* Identical corners */
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  border: none;        /* Default border removal */
   display: flex;
-  gap: 15px;
+  align-items: center;
+  justify-content: center;
 }
 
+/* 2. Buy Now - Pink Background */
 .buy-now-btn {
-  flex: 1;
   background: #ff4d6d;
   color: white;
-  border: none;
-  padding: 18px;
-  border-radius: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
 }
 
+/* 3. Add to Cart - White with Black Border */
 .add-cart-btn-outline {
-  flex: 1;
   background: white;
-  border: 2px solid #1a1a1a;
-  padding: 18px;
-  border-radius: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
+  border: 2px solid #1a1a1a !important;
+  color: #1a1a1a;
 }
 /* Login Page Specifics */
 .login-wrapper {
@@ -727,4 +727,52 @@
 
 .logout-btn:hover {
   text-decoration: underline;
+}
+/* 4. Vault Button - Default State (Gold style) */
+.vault-btn {
+  background: white;
+  border: 2px solid #D4AF37 !important;
+  color: #D4AF37;
+}
+
+.vault-btn:hover:not(:disabled) {
+  background: #fffdf5;
+  transform: translateY(-2px);
+}
+
+/* 5. Vault Button - SAVED State (Matches Add to Cart border style) */
+.vault-btn.saved {
+  background: #f8f8f8 !important;
+  border: 2px solid #1a1a1a !important;
+  color: #1a1a1a !important;
+  cursor: default;
+  opacity: 0.8;
+}
+
+/* 6. Ensure the container handles the buttons correctly */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping on small mobile screens */
+  gap: 15px;
+  margin-top: 30px;
+}
+@media (max-width: 600px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+  .action-buttons button {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .product-detail-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .product-image-showcase {
+    order: 1; /* First */
+  }
+  .product-info-panel {
+    order: 2; /* Second */
+  }
 }

@@ -49,6 +49,10 @@ const CartPage = ({ cart, setCart }) => {
           {user ? (
             <div className="user-nav-section">
               <span className="welcome-msg">Hi, {user.fullName.split(' ')[0]}</span>
+              {/* --- NEW VIEW VAULT ACTION --- */}
+              <button className="view-vault-nav-btn" onClick={() => navigate('/vault')}>
+                🏛️ My Vault
+              </button>
               <button className="logout-btn" onClick={handleLogout}>Logout</button>
             </div>
           ) : (

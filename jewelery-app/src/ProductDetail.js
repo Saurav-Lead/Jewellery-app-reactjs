@@ -1,29 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { VaultService } from './VaultService'; 
 import './JewelryCatalog.css';
+import './Vault.css';
 
 const ProductDetail = ({ addToCart, cartCount }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
-  
-  // 1. Add state for the logged-in user
   const [user, setUser] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [vaultLoading, setVaultLoading] = useState(false);
 
   useEffect(() => {
-    // 2. Sync user state with localStorage
     const savedUser = localStorage.getItem("user");
+    let currentUser = null;
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      currentUser = JSON.parse(savedUser);
+      setUser(currentUser);
     }
+
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+    
     axios.get(`${API_URL}/api/products/${id}`)
-      .then(res => setProduct(res.data))
+      .then(res => {
+        setProduct(res.data);
+        if (currentUser) {
+          checkVaultStatus(currentUser.userId, id);
+        }
+      })
       .catch(err => console.error("Product not found", err));
   }, [id]);
 
-  // 3. Logout handler
+  const checkVaultStatus = async (userId, productId) => {
+    try {
+      const vaultItems = await VaultService.getUserVault(userId);
+      const exists = vaultItems.some(item => item.productId === productId);
+      setIsSaved(exists);
+    } catch (err) {
+      console.error("Error checking vault status", err);
+    }
+  };
+
+  const handleAddToVault = async () => {
+    if (!user) {
+      alert("Please login to save items to your vault.");
+      navigate('/login');
+      return;
+    }
+
+    setVaultLoading(true);
+    try {
+      await VaultService.addToVault(user.userId, product.productId, "Saved from detail page");
+      setIsSaved(true);
+      alert("Added to your private vault!");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setVaultLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
@@ -45,10 +83,15 @@ const ProductDetail = ({ addToCart, cartCount }) => {
         </div>
         
         <div className="nav-actions">
-          {/* 4. Personalized Nav Section */}
           {user ? (
             <div className="user-nav-section">
               <span className="welcome-msg">Hi, {user.fullName.split(' ')[0]}</span>
+              
+              {/* --- NEW VIEW VAULT ACTION --- */}
+              <button className="view-vault-nav-btn" onClick={() => navigate('/vault')}>
+                🏛️ My Vault
+              </button>
+              
               <button className="logout-btn" onClick={handleLogout}>Logout</button>
             </div>
           ) : (
@@ -77,11 +120,11 @@ const ProductDetail = ({ addToCart, cartCount }) => {
         </div>
 
         <div className="product-info-panel">
-          <span className="category-tag">{product.category?.name || 'Fine Jewelry'}</span>
+          <span className="category-tag">{product.category?.categoryName || 'Fine Jewelry'}</span>
           <h1 className="detail-title">{product.productName}</h1>
           
           <div className="price-tag-large">
-            ${Number(product.ShelfPrice || product.shelf_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+             ${Number(product.ShelfPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </div>
 
           <div className="specs-grid-detail">
@@ -91,8 +134,8 @@ const ProductDetail = ({ addToCart, cartCount }) => {
           </div>
 
           <p className="product-description">
-            This exquisite {product.productName} features premium {product.metalType} 
-            crafted to {product.metalPurity} standards.
+            Experience the elegance of the {product.productName}. This piece is meticulously 
+            crafted in {product.metalType} ({product.metalPurity}), weighing approximately {product.metalWeightGrams} grams.
           </p>
 
           <div className="action-buttons">
@@ -101,6 +144,14 @@ const ProductDetail = ({ addToCart, cartCount }) => {
             </button>
             <button className="add-cart-btn-outline" onClick={() => addToCart(product)}>
               Add to Cart
+            </button>
+            
+            <button 
+              className={`vault-btn ${isSaved ? 'saved' : ''}`} 
+              onClick={handleAddToVault}
+              disabled={isSaved || vaultLoading}
+            >
+              {vaultLoading ? 'Saving...' : isSaved ? '🏛️ In Your Vault' : '✨ Save to Vault'}
             </button>
           </div>
         </div>

@@ -5,6 +5,8 @@ import ProductDetail from './ProductDetail';
 import CartPage from './CartPage';
 import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
+import VaultPage from './VaultPage';
+
 
 function App() {
   // Load initial cart from localStorage or start with empty array
@@ -12,7 +14,15 @@ function App() {
     const savedCart = localStorage.getItem('jewelry_cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
+const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    // Check if user is logged in on load
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
   // Automatically save to localStorage whenever the cart changes
   useEffect(() => {
     localStorage.setItem('jewelry_cart', JSON.stringify(cart));
@@ -39,6 +49,7 @@ function App() {
         <Route path="/" element={<JewelryCatalog cartCount={cart.length} />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/vault" element={<VaultPage userId={user?.userId} cartCount={cart.length} />} />
       </Routes>
     </Router>
   );
