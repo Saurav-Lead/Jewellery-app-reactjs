@@ -802,11 +802,12 @@
     gap: 20px;
   }
 
-  .hamburger {
+ .hamburger {
+    color: #1a1a1a !important; /* Forces it to Black */
     background: none;
     border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent; /* Removes the blue flash on mobile tap */
   }
 
   .nav-links-container {
@@ -835,27 +836,28 @@
 }
 /* Container to center the bar on the page */
 .search-bar-standalone {
-  width: 100%;
+  width: 90%; /* Responsive width */
   max-width: 600px;
-  margin: 40px auto; /* Space it out from the Navbar and Header */
-  padding: 0 20px;
+  margin: 40px auto; /* 'auto' handles horizontal centering */
+  padding: 0;
   position: relative;
+  display: flex; /* Ensures the input fills the container correctly */
+  justify-content: center;
 }
 
 .search-bar-standalone input {
   width: 100%;
   padding: 18px 25px;
-  padding-right: 60px; /* Space for the search icon */
+  padding-right: 60px;
   font-family: 'Poppins', sans-serif;
   font-size: 1.1rem;
-  border-radius: 50px; /* Pill shape */
+  text-align: center; /* Centers the placeholder and typed text */
+  border-radius: 50px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: #ffffff;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #2d3436;
+  transition: all 0.3s ease;
 }
-
 /* Subtle gold glow on focus */
 .search-bar-standalone input:focus {
   outline: none;
