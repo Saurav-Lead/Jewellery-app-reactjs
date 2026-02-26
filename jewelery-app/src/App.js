@@ -6,7 +6,9 @@ import CartPage from './CartPage';
 import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
 import VaultPage from './VaultPage';
-
+import AddressManager from './AddressManager';
+import AddAddress from './Addaddress';
+import ProfileOverview from './ProfileOverview';
 
 function App() {
   // Load initial cart from localStorage or start with empty array
@@ -50,6 +52,10 @@ const [user, setUser] = useState(null);
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/vault" element={<VaultPage userId={user?.userId} cartCount={cart.length} />} />
+        <Route path="/addresses" element={<AddressManager userId={user?.userId} cartCount={cart.length} />} />
+         <Route path="/addresses/new" element={<AddAddress userId={user?.userId} cartCount={cart.length} />} />
+         <Route path="/profile" element={<ProfileOverview userId={user?.userId} cartCount={cart.length} />} />
+       
       </Routes>
     </Router>
   );

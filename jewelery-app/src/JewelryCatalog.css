@@ -1160,3 +1160,391 @@
     width: 50%;
   }
 }
+.profile-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 50px;
+  transition: background 0.3s;
+}
+
+.user-profile-trigger:hover {
+  background: #d4af37;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  background: #1a1a1a;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.profile-dropdown-menu {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  width: 220px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  z-index: 1001;
+  animation: slideIn 0.2s ease-out;
+}
+
+.dropdown-header {
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-header strong { font-size: 0.9rem; color: #1a1a1a; }
+.dropdown-header span { font-size: 0.75rem; color: #888; }
+
+.profile-dropdown-menu button {
+  width: 100%;
+  padding: 12px 20px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  color: #444;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.profile-dropdown-menu button:hover {
+  background: #f8f8f8;
+  color: #ff4d6d;
+}
+
+.logout-link { color: #ff4d6d !important; font-weight: 600; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* --- PROFILE TRIGGER BUTTON --- */
+.user-profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.6); /* Translucent glass */
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 6px 18px 6px 8px; /* Balanced for the circle avatar */
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-profile-trigger:hover, 
+.user-profile-trigger.active {
+  background: #ffffff;
+  border-color: #1a1a1a;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* --- THE AVATAR --- */
+.avatar-sm {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #444 100%);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* --- STACKED TEXT GROUP --- */
+.welcome-text-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1; /* Tighter line height for stacked text */
+}
+CSS
+/* Container and Layout */
+.address-page-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.address-header h2 {
+  font-size: 1.8rem;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+}
+
+/* Grid for Address Cards */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+/* Individual Card Styling */
+.address-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.address-card:hover {
+  border-color: #d4af37; /* Heritage Gold */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Default Address Highlight */
+.address-card.default {
+  border: 2px solid #d4af37;
+  background-color: #fffdf5;
+}
+
+.default-badge {
+  background: #d4af37;
+  color: white;
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  width: fit-content;
+  margin-bottom: 12px;
+}
+
+/* Address Text Styling */
+.address-label {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.address-details {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+/* Action Buttons */
+.address-actions {
+  display: flex;
+  gap: 15px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 15px;
+}
+
+.btn-edit, .btn-delete, .btn-set-default {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 0;
+  transition: color 0.2s;
+}
+
+.btn-edit { color: #1a1a1a; }
+.btn-edit:hover { color: #d4af37; }
+
+.btn-delete { color: #a30000; }
+.btn-delete:hover { text-decoration: underline; }
+
+.btn-set-default {
+  color: #d4af37;
+  text-decoration: underline;
+}
+
+/* Add New Address Button */
+.add-address-card {
+  border: 2px dashed #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-height: 200px;
+  background: #fafafa;
+}
+
+.add-address-card:hover {
+  background: #f0f0f0;
+  border-color: #999;
+}
+
+.plus-icon {
+  font-size: 2.5rem;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .address-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.profile-details{
+  border: 2px dashed #ccc;
+  display: flex;
+  flex-direction: column;
+  padding-left: 25px;
+  justify-content: center;
+  cursor: pointer;
+  min-height: 200px;
+  background: #fffdf5;
+}
+
+/* Container to center the profile card */
+.profile-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+  background-color: #fcfaf8; /* Soft cream background */
+}
+
+/* The Main Card */
+.profile-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eee;
+}
+
+.profile-title {
+  font-family: 'Playfair Display', serif; /* Elegant font for jewelry */
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Navigation Link */
+.back-link {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  padding: 0;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #cda45e; /* Gold accent color */
+}
+
+/* Info Layout */
+.info-group {
+  margin-bottom: 25px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.info-group label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+.info-group p {
+  font-size: 1.1rem;
+  color: #222;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Buttons */
+.profile-actions {
+  display: flex;
+  flex-direction: row; /* Aligns buttons side-by-side */
+  justify-content: center; /* Centers them in the card */
+  gap: 15px; /* This creates the space between the buttons automatically */
+  margin-top: 30px;
+}
+
+.edit-profile-btn {
+  background-color: #333;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.edit-profile-btn:hover {
+  background-color: #cda45e;
+}
+
+.logout-btn {
+  background: transparent;
+  color: #d9534f;
+  border: 1px solid #d9534f;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.logout-btn:hover {
+  background: #d9534f;
+  color: white;
+}
+@media (max-width: 480px) {
+  .profile-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
