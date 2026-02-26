@@ -9,23 +9,24 @@ import VaultPage from './VaultPage';
 import AddressManager from './AddressManager';
 import AddAddress from './Addaddress';
 import ProfileOverview from './ProfileOverview';
+import OrderHistory from './OrderHistory';
+import Footer from './Footer'; // Import your Footer
 
 function App() {
-  // Load initial cart from localStorage or start with empty array
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem('jewelry_cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
-const [user, setUser] = useState(null);
+  
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check if user is logged in on load
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
   }, []);
-  // Automatically save to localStorage whenever the cart changes
+
   useEffect(() => {
     localStorage.setItem('jewelry_cart', JSON.stringify(cart));
   }, [cart]);
@@ -44,19 +45,24 @@ const [user, setUser] = useState(null);
 
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<JewelryCatalog cartCount={cart.length} />} />
-        <Route path="/product/:id" element={<ProductDetail addToCart={addToCart} cartCount={cart.length} />} />
-        <Route path="/cart" element={<CartPage cartCount={cart.length} cart={cart} setCart={setCart} />} />
-        <Route path="/" element={<JewelryCatalog cartCount={cart.length} />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/vault" element={<VaultPage userId={user?.userId} cartCount={cart.length} />} />
-        <Route path="/addresses" element={<AddressManager userId={user?.userId} cartCount={cart.length} />} />
-         <Route path="/addresses/new" element={<AddAddress userId={user?.userId} cartCount={cart.length} />} />
-         <Route path="/profile" element={<ProfileOverview userId={user?.userId} cartCount={cart.length} />} />
-       
-      </Routes>
+      {/* Wrapper to ensure sticky footer behavior */}
+      <div className="app-viewport-wrapper">
+        <main className="app-main-content">
+          <Routes>
+            <Route path="/" element={<JewelryCatalog cartCount={cart.length} />} />
+            <Route path="/product/:id" element={<ProductDetail addToCart={addToCart} cartCount={cart.length} />} />
+            <Route path="/cart" element={<CartPage cartCount={cart.length} cart={cart} setCart={setCart} />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/vault" element={<VaultPage userId={user?.userId} cartCount={cart.length} />} />
+            <Route path="/addresses" element={<AddressManager userId={user?.userId} cartCount={cart.length} />} />
+            <Route path="/addresses/new" element={<AddAddress userId={user?.userId} cartCount={cart.length} />} />
+            <Route path="/profile" element={<ProfileOverview userId={user?.userId} cartCount={cart.length} />} />
+            <Route path="/orders" element={<OrderHistory cartCount={cart.length} />} />
+          </Routes>
+        </main>
+        <Footer /> {/* Footer is now global and visible on all routes */}
+      </div>
     </Router>
   );
 }

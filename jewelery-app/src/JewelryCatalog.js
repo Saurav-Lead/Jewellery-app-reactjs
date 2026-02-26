@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
+import Footer from './Footer'; // 1. Import the Footer
 import './JewelryCatalog.css';
 import HeritageSkeleton from './HeritageSkeleton';
 
@@ -12,7 +13,6 @@ const JewelryCatalog = ({ cartCount }) => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
 
-  // --- NEW FILTER STATES ---
   const [filters, setFilters] = useState({
     metalType: "All",
     category: "All",
@@ -38,7 +38,6 @@ const JewelryCatalog = ({ cartCount }) => {
       });
   }, []);
 
-  // --- INTEGRATED FILTER & SORT LOGIC ---
   const filteredProducts = products
     .filter(item => {
       const price = Number(item.shelfPrice || item.ShelfPrice || 0);
@@ -58,87 +57,90 @@ const JewelryCatalog = ({ cartCount }) => {
       return 0;
     });
 
-  
-
   return (
-    <div className="catalog-container">
-      <Navbar cartCount={cartCount} />
+    <div className="catalog-page-wrapper"> {/* Flex wrapper to push footer down */}
+      <div className="catalog-container">
+        <Navbar cartCount={cartCount} />
 
-      {/* --- INTEGRATED SEARCH & FILTER HUB --- */}
-      <div className="search-filter-hub">
-        <div className="search-bar-standalone">
-          <input 
-            type="text" 
-            placeholder="Search for gold, diamonds, rings..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        <div className="filter-pill-container">
-          <div className="filter-dropdown-wrapper">
-            <select value={filters.metalType} onChange={(e) => setFilters({...filters, metalType: e.target.value})}>
-              <option value="All">All Metals</option>
-              <option value="Gold">Gold</option>
-              <option value="Silver">Silver</option>
-              <option value="Platinum">Platinum</option>
-            </select>
-
-            <select value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}>
-              <option value="All">All Categories</option>
-              <option value="Rings">Rings</option>
-              <option value="Necklaces">Necklaces</option>
-              <option value="Earrings">Earrings</option>
-            </select>
-
-            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-              <option value="">Sort: Featured</option>
-              <option value="price-low">Price: Low-High</option>
-              <option value="price-high">Price: High-Low</option>
-            </select>
-          </div>
-
-          <div className="price-slider-pill">
-            <span>Under ${Number(filters.maxPrice).toLocaleString()}</span>
+        <div className="search-filter-hub">
+          <div className="search-bar-standalone">
             <input 
-              type="range" min="500" max="20000" step="500"
-              value={filters.maxPrice}
-              onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+              type="text" 
+              placeholder="Search for gold, diamonds, rings..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-        </div>
-      </div>
-      <div className="product-grid">
-  {loading ? (
-    /* Render 8 skeletons while waiting for the Spring Boot API */
-    <HeritageSkeleton type="card" count={8} />
-  ) : (
-    /* Render actual products once loading is false */
-    filteredProducts.map((item) => (
-      <div key={item.productId} className="product-card">
-        <div className="product-image-container">
-          <img 
-            src={item.imageUrl || 'https://via.placeholder.com/300'} 
-            alt={item.productName} 
-            className="product-image"
-          />
-        </div>
-        <div className="metal-badge">{item.metalPurity} {item.metalType}</div>
-        <div className="product-info">
-          <h3>{item.productName}</h3>
-          <p className="category">{item.category?.name || 'Fine Jewelry'}</p>
-          <div className="price-tag">
-            ${Number(item.shelfPrice || item.ShelfPrice || 0).toLocaleString()}
+
+          <div className="filter-pill-container">
+            <div className="filter-dropdown-wrapper">
+              <select value={filters.metalType} onChange={(e) => setFilters({...filters, metalType: e.target.value})}>
+                <option value="All">All Metals</option>
+                <option value="Gold">Gold</option>
+                <option value="Silver">Silver</option>
+                <option value="Platinum">Platinum</option>
+              </select>
+
+              <select value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}>
+                <option value="All">All Categories</option>
+                <option value="Rings">Rings</option>
+                <option value="Necklaces">Necklaces</option>
+                <option value="Earrings">Earrings</option>
+              </select>
+
+              <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+                <option value="">Sort: Featured</option>
+                <option value="price-low">Price: Low-High</option>
+                <option value="price-high">Price: High-Low</option>
+              </select>
+            </div>
+
+            <div className="price-slider-pill">
+              <span>Under ${Number(filters.maxPrice).toLocaleString()}</span>
+              <input 
+                type="range" min="500" max="20000" step="500"
+                value={filters.maxPrice}
+                onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+              />
+            </div>
           </div>
-          <button className="view-btn" onClick={() => navigate(`/product/${item.productId}`)}>
-            View Details
-          </button>
         </div>
+
+        <div className="product-grid">
+          {loading ? (
+            <HeritageSkeleton type="card" count={8} />
+          ) : (
+            filteredProducts.map((item) => (
+              <div key={item.productId} className="product-card">
+                <div className="product-image-container">
+                  <img 
+                    src={item.imageUrl || 'https://via.placeholder.com/300'} 
+                    alt={item.productName} 
+                    className="product-image"
+                  />
+                </div>
+                <div className="metal-badge">{item.metalPurity} {item.metalType}</div>
+                <div className="product-info">
+                  <h3>{item.productName}</h3>
+                  <p className="category">{item.category?.name || 'Fine Jewelry'}</p>
+                  <div className="price-tag">
+                    ${Number(item.shelfPrice || item.ShelfPrice || 0).toLocaleString()}
+                  </div>
+                  <button className="view-btn" onClick={() => navigate(`/product/${item.productId}`)}>
+                    View Details
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        
+        {filteredProducts.length === 0 && !loading && (
+          <p className="no-results">No jewelry matches your refined search.</p>
+        )}
       </div>
-    ))
-  )}
-</div>
-      {filteredProducts.length === 0 && <p className="no-results">No jewelry matches your refined search.</p>}
+
+      {/* 2. Place Footer outside of catalog-container if you want it full-width */}
     </div>
   );
 };
