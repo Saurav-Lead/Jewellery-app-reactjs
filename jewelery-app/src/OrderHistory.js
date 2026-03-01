@@ -1,39 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './JewelryCatalog.css';
 import Navbar from './Navbar';
 
-const OrderHistory = ({ cartCount }) => { // Destructured cartCount
+const OrderHistory = ({ cartCount }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   
-  const user = JSON.parse(localStorage.getItem("user"));
+  // SECURITY CHANGE: Get token instead of the user object
+  const token = localStorage.getItem("token");
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-  useEffect(() => {
-    if (!user || !user.userId) {
+  // Memoized fetch function
+  const fetchOrders = useCallback(async () => {
+    if (!token) {
       navigate('/login');
       return;
     }
 
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/orders/user/${user.userId}`);
-        setOrders(response.data);
-      } catch (error) {
-        console.error("Error fetching order history:", error);
-      } finally {
-        setLoading(false);
+    try {
+      // SECURITY CHANGE: 
+      // 1. URL changed from /user/${userId} to /history
+      // 2. Added Authorization header with Bearer token
+      const response = await axios.get(`${API_URL}/api/orders/history`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Error fetching order history:", error);
+      // If unauthorized (403), force a login
+      if (error.response?.status === 403) {
+        navigate('/login');
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  }, [token, API_URL, navigate]);
 
+  useEffect(() => {
     fetchOrders();
-  }, [user?.userId, API_URL, navigate]);
+  }, [fetchOrders]);
 
   return (
-    <div className="catalog-container"> {/* Main wrapper for consistent styling */}
+    <div className="catalog-container">
       <Navbar cartCount={cartCount} />
       
       <div className="order-history-container">
@@ -83,7 +96,9 @@ const OrderHistory = ({ cartCount }) => { // Destructured cartCount
                   </div>
                   <div className="order-total-box">
                     <span className="total-label">Grand Total: </span>
-                    <span className="total-value">${parseFloat(order.totalAmount).toFixed(2)}</span>
+                    <span className="total-value">
+                      ${parseFloat(order.totalAmount).toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>

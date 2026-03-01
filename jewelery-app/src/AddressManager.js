@@ -1,44 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Navbar from './Navbar'; // Ensure path is correct
-import './JewelryCatalog.css'; // The CSS we just created
+import Navbar from './Navbar'; 
+import './JewelryCatalog.css';
 
 const AddressManager = ({ cartCount }) => {
   const [addresses, setAddresses] = useState([]);
   const navigate = useNavigate();
   
-  const user = JSON.parse(localStorage.getItem("user"));
+  // SECURITY CHANGE: Get token instead of the user object
+  const token = localStorage.getItem("token");
   
-  // Update this to match your Controller's @RequestMapping("/api/addresses")
   const API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080') + '/api/addresses';
 
-  useEffect(() => {
-    if (user?.userId) {
-      axios.get(`${API_URL}/user/${user.userId}`)
-        .then(res => setAddresses(res.data))
-        .catch(err => console.error("Error fetching addresses", err));
-    } else {
-      // Redirect to login if user session is missing
+  // Memoized fetch function for re-use after updates
+  const fetchAddresses = useCallback(() => {
+    if (!token) {
       navigate('/login');
+      return;
     }
-  }, [user?.userId, API_URL, navigate]);
+
+    // SECURITY CHANGE: Removed /user/{userId} from URL
+    axios.get(API_URL, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => setAddresses(res.data))
+    .catch(err => {
+      console.error("Error fetching addresses", err);
+      if (err.response?.status === 403) navigate('/login');
+    });
+  }, [token, API_URL, navigate]);
+
+  useEffect(() => {
+    fetchAddresses();
+  }, [fetchAddresses]);
 
   const handleSetDefault = (addressId) => {
-    axios.patch(`${API_URL}/${addressId}/set-default/user/${user.userId}`)
-      .then(() => {
-        // Instead of reload, fetch data again for a smoother UX
-        return axios.get(`${API_URL}/user/${user.userId}`);
-      })
-      .then(res => setAddresses(res.data))
-      .catch(err => console.error("Error setting default", err));
+    // SECURITY CHANGE: URL simplified, Token handles identification
+    axios.patch(`${API_URL}/${addressId}/set-default`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(() => {
+      fetchAddresses(); // Refresh list for smooth UX
+    })
+    .catch(err => console.error("Error setting default", err));
   };
 
   const handleDelete = (addressId) => {
-    if(window.confirm("Are you sure you want to remove this address?")) {
-      axios.delete(`${API_URL}/${addressId}`)
-        .then(() => setAddresses(addresses.filter(a => a.id !== addressId)))
-        .catch(err => console.error("Error deleting address", err));
+    if (window.confirm("Are you sure you want to remove this address?")) {
+      axios.delete(`${API_URL}/${addressId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(() => setAddresses(addresses.filter(a => a.id !== addressId)))
+      .catch(err => console.error("Error deleting address", err));
     }
   };
 

@@ -4,16 +4,23 @@ import './JewelryCatalog.css';
 
 const Navbar = ({ cartCount }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  // State now stores the auth data (token and email)
+  const [authData, setAuthData] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false); // New state for profile dropdown
+  const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
+    // 1. Get the new auth data keys
+    const token = localStorage.getItem("token");
+    const email = localStorage.getItem("userEmail");
+    const storedAuth = localStorage.getItem("authData");
 
-    // Close dropdown when clicking outside
+    if (token && email) {
+      // If we saved the full object in login, parse it; otherwise use email
+      setAuthData(storedAuth ? JSON.parse(storedAuth) : { email, token });
+    }
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setProfileOpen(false);
@@ -24,12 +31,20 @@ const Navbar = ({ cartCount }) => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
+    // 2. Clear all security-related storage
+    localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("authData");
+    
+    setAuthData(null);
     setProfileOpen(false);
     setMenuOpen(false);
     navigate('/');
   };
+
+  // Helper to get a display name or initial
+  const displayName = authData?.fullName || authData?.email?.split('@')[0] || "User";
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <nav className="navbar">
@@ -52,34 +67,34 @@ const Navbar = ({ cartCount }) => {
 
       <div className={`nav-links-container ${menuOpen ? 'show' : ''}`}>
         <div className="nav-actions">
-          {user ? (
+          {/* 3. Check for authData/token presence */}
+          {authData ? (
             <div className="profile-menu-container" ref={dropdownRef}>
               <button 
-  className={`user-profile-trigger ${profileOpen ? 'active' : ''}`} 
-  onClick={() => setProfileOpen(!profileOpen)}
->
-  <div className="avatar-sm">{user.fullName.charAt(0)}</div>
-  <div className="welcome-text-group">
-    <span className="welcome-label">Welcome back,</span>
-    <span className="user-name-label">{user.fullName.split(' ')[0]}</span>
-  </div>
-  <span className="dropdown-chevron">▾</span>
-</button>
+                className={`user-profile-trigger ${profileOpen ? 'active' : ''}`} 
+                onClick={() => setProfileOpen(!profileOpen)}
+              >
+                <div className="avatar-sm">{initial}</div>
+                <div className="welcome-text-group">
+                  <span className="welcome-label">Welcome back,</span>
+                  <span className="user-name-label">{displayName}</span>
+                </div>
+                <span className="dropdown-chevron">▾</span>
+              </button>
 
               {profileOpen && (
                 <div className="profile-dropdown-menu">
                   <div className="dropdown-header">
-                    <strong>{user.fullName}</strong>
-                    <span>{user.email}</span>
+                    <strong>{authData.fullName || 'Member'}</strong>
+                    <span>{authData.email}</span>
                   </div>
                   <hr />
                   <button onClick={() => { navigate('/profile'); setProfileOpen(false); }}>
                     👤 Profile Overview
                   </button>
-                  {/* NEW: Address Management Link */}
-    <button onClick={() => { navigate('/addresses'); setProfileOpen(false); }}>
-      📍 Saved Addresses
-    </button>
+                  <button onClick={() => { navigate('/addresses'); setProfileOpen(false); }}>
+                    📍 Saved Addresses
+                  </button>
                   <button onClick={() => { navigate('/vault'); setProfileOpen(false); }}>
                     🏛️ My Private Vault
                   </button>

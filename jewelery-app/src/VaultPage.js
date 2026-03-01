@@ -1,59 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { VaultService } from './VaultService';
 import './Vault.css';
 import './JewelryCatalog.css';
 import Navbar from './Navbar';
 import HeritageSkeleton from './HeritageSkeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 
 const VaultPage = ({ cartCount }) => {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      const currentUser = JSON.parse(savedUser);
-      setUser(currentUser);
-      loadVault(currentUser.userId);
-    } else {
-      navigate('/login');
+  const loadVault = useCallback(async (token) => {
+    try {
+      console.log("VaultPage: Attempting to fetch vault with token...");
+      const data = await VaultService.getUserVault(token);
+      setItems(data || []);
+      setLoading(false);
+    } catch (err) {
+      console.error("Vault fetch error details:", err.response || err);
+      
+      // If the backend rejects the token (401/403), we redirect.
+      // If you are redirecting, CHECK YOUR NETWORK TAB for a 403 error.
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        console.warn("Server rejected token. Redirecting to login.");
+        localStorage.removeItem("token");
+        navigate('/login');
+      } else {
+        setLoading(false);
+      }
     }
   }, [navigate]);
 
-  const loadVault = async (userId) => {
-    try {
-      const data = await VaultService.getUserVault(userId);
-      setItems(data);
-    } catch (err) {
-      console.error("Failed to fetch vault items", err);
-    } finally {
-      // Small timeout can be added here if you want to test the skeleton pulse
-      setLoading(false);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.log("VaultPage: No token found in localStorage. Redirecting.");
+      navigate('/login');
+      return;
     }
-  };
+
+    loadVault(token);
+  }, [navigate, loadVault]);
 
   const handleRemove = async (productId) => {
+    const token = localStorage.getItem("token");
     if (window.confirm("Remove this masterpiece from your vault?")) {
       try {
-        const success = await VaultService.removeFromVault(user.userId, productId);
-        if (success) {
-          setItems(items.filter(item => item.productId !== productId));
-        }
+        await VaultService.removeFromVault(productId, token);
+        setItems(prevItems => prevItems.filter(item => item.productId !== productId));
       } catch (err) {
-        alert("Error removing item.");
+        alert("Action failed. Your session may have expired.");
       }
     }
   };
 
-  // REMOVED: The "if (loading) return loader" line to allow Skeletons to show below
-
   return (
     <div className="catalog-container">
-      <Navbar cartCount={cartCount} />
+      {/* Ensure userEmail is passed if your Navbar expects it */}
+      <Navbar cartCount={cartCount} userEmail={localStorage.getItem("userEmail")} />
       
       <div className="vault-wrapper">
         <button className="back-btn" onClick={() => navigate('/')}>
@@ -66,23 +72,23 @@ const VaultPage = ({ cartCount }) => {
         </header>
 
         {loading ? (
-          /* --- SKELETON STATE --- */
           <div className="vault-grid">
             <HeritageSkeleton type="card" count={4} />
           </div>
         ) : items.length === 0 ? (
-          /* --- EMPTY STATE --- */
           <div className="empty-vault">
             <p>Your vault is currently empty.</p>
             <button className="browse-btn" onClick={() => navigate('/')}>Browse Gems</button>
           </div>
         ) : (
-          /* --- DATA STATE --- */
           <div className="vault-grid">
             {items.map((item) => (
-              <div key={item.vaultItemId} className="vault-item-card">
+              <div key={item.productId || item.vaultItemId} className="vault-item-card">
                 <div className="vault-img-wrapper" onClick={() => navigate(`/product/${item.productId}`)}>
-                  <img src={item.imageUrl || 'https://via.placeholder.com/300'} alt={item.productName} />
+                  <img 
+                    src={item.imageUrl || 'https://via.placeholder.com/300'} 
+                    alt={item.productName} 
+                  />
                   <button 
                     className="delete-overlay-btn" 
                     onClick={(e) => {
@@ -98,7 +104,7 @@ const VaultPage = ({ cartCount }) => {
                   <h3>{item.productName}</h3>
                   <span className="metal-tag">{item.metalType}</span>
                   <p className="vault-item-price">
-                    ${Number(item.ShelfPrice || 0).toLocaleString()}
+                    ${Number(item.shelfPrice || item.ShelfPrice || 0).toLocaleString()}
                   </p>
                   <button className="view-product-btn" onClick={() => navigate(`/product/${item.productId}`)}>
                     View Masterpiece

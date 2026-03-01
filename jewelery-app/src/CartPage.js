@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
@@ -6,10 +6,11 @@ import './JewelryCatalog.css';
 
 const CartPage = ({ cartCount, cart, setCart }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // --- Address Integration States ---
+  // --- Security: Source of Truth ---
+  const token = localStorage.getItem("token");
+  
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [shippingAddress, setShippingAddress] = useState("");
   const [isCustomAddress, setIsCustomAddress] = useState(false);
@@ -17,22 +18,14 @@ const CartPage = ({ cartCount, cart, setCart }) => {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      fetchSavedAddresses(parsedUser.userId);
-    }
-  }, []);
-
-  // Fetch addresses from your Address Management API
-  const fetchSavedAddresses = async (userId) => {
+  const fetchSavedAddresses = useCallback(async () => {
+    if (!token) return;
     try {
-      const res = await axios.get(`${API_URL}/api/addresses/user/${userId}`);
+      const res = await axios.get(`${API_URL}/api/addresses`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setSavedAddresses(res.data);
       
-      // Auto-select the Primary address if it exists
       const primary = res.data.find(addr => addr.default) || res.data[0];
       if (primary) {
         const fullAddr = `${primary.street}, ${primary.city}, ${primary.state} ${primary.zipCode}`;
@@ -43,15 +36,22 @@ const CartPage = ({ cartCount, cart, setCart }) => {
       }
     } catch (err) {
       console.error("Error fetching saved addresses", err);
-      setIsCustomAddress(true); // Fallback to manual entry
+      setIsCustomAddress(true);
     }
-  };
+  }, [token, API_URL]);
 
-  // --- Cart Helpers (Existing Logic Preserved) ---
-  const getPrice = (item) => parseFloat(item.ShelfPrice || item.shelf_price || item.shelfPrice || 0);
+  useEffect(() => {
+    if (token) {
+      fetchSavedAddresses();
+    } else {
+      // If no token, they shouldn't be here anyway
+      navigate('/login');
+    }
+  }, [token, fetchSavedAddresses, navigate]);
+
+  const getPrice = (item) => parseFloat(item.shelfPrice || item.ShelfPrice || 0);
   const subtotal = cart.reduce((acc, item) => acc + (getPrice(item) * item.quantity), 0);
-  const tax = subtotal * 0.05; 
-  const total = subtotal + tax;
+  const total = subtotal + (subtotal * 0.05);
 
   const updateQuantity = (id, amount) => {
     setCart(prev => prev.map(item => 
@@ -63,9 +63,8 @@ const CartPage = ({ cartCount, cart, setCart }) => {
     setCart(prev => prev.filter(item => item.productId !== id));
   };
 
-  // --- Order Logic ---
   const handleCheckout = async () => {
-    if (!user) {
+    if (!token) {
       alert("Please login to complete your purchase.");
       navigate('/login');
       return;
@@ -78,40 +77,56 @@ const CartPage = ({ cartCount, cart, setCart }) => {
 
     setIsProcessing(true);
 
-    // Optional: Save address to Address Management if user checked the box
-    if (isCustomAddress && saveThisAddress) {
-        try {
-            // Adjust this payload to match your Address Entity
-            await axios.post(`${API_URL}/api/addresses`, {
-                userId: user.userId,
-                fullAddress: shippingAddress,
-                label: "Checkout Entry",
-                isDefault: false
-            });
-        } catch (e) { console.error("Could not save address to profile", e); }
-    }
-
-    const orderData = {
-      user: { userId: user.userId },
-      totalAmount: total.toFixed(2),
-      status: "PENDING",
-      shippingAddress: shippingAddress,
-      items: cart.map(item => ({
-        productId: item.productId || item.id,
-        quantity: item.quantity,
-        priceAtPurchase: getPrice(item)
-      }))
-    };
     try {
-      
-      const response = await axios.post(`${API_URL}/api/orders/place`, orderData);
+      // 1. OPTIONAL: Save address if user checked the box
+      if (isCustomAddress && saveThisAddress) {
+        const addressParts = shippingAddress.split(','); // Simple split for demo
+        await axios.post(`${API_URL}/api/addresses`, {
+            fullName: "Default Name", // You might want a field for this
+            street: addressParts[0]?.trim() || shippingAddress,
+            city: addressParts[1]?.trim() || "",
+            state: addressParts[2]?.trim().split(' ')[0] || "",
+            zipCode: addressParts[2]?.trim().split(' ')[1] || "",
+            label: "Checkout Order Address"
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+
+      // 2. Prepare Order Data
+      const orderData = {
+        totalAmount: total.toFixed(2),
+        status: "PENDING",
+        shippingAddress: shippingAddress,
+        items: cart.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          priceAtPurchase: getPrice(item)
+        }))
+      };
+
+      // 3. Post Order
+      const response = await axios.post(`${API_URL}/api/orders/place`, orderData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       if (response.status === 200 || response.status === 201) {
-        alert(`Order #${response.data.orderId} placed successfully!`);
-        setCart([]);
-        navigate('/profile');
+        alert(`Order placed successfully!`);
+        setCart([]); // Clear the global cart state
+        
+        // --- THE FIX ---
+        // Ensure we navigate to profile ONLY if we still have the token
+        // If your ProfilePage redirects to Login, check its useEffect logic!
+        navigate('/profile'); 
       }
     } catch (error) {
-      alert("Checkout failed. Please try again.");
+      console.error("Checkout error", error);
+      if (error.response?.status === 403) {
+        alert("Session expired. Please login again.");
+        navigate('/login');
+      } else {
+        alert("Checkout failed. Please try again.");
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -120,14 +135,11 @@ const CartPage = ({ cartCount, cart, setCart }) => {
   return (
     <div className="catalog-container cart-page-view">
       <Navbar cartCount={cartCount} />
-      
       <div className="cart-content-wrapper">
         <button className="back-btn" onClick={() => navigate(-1)}>Back to Shopping</button>
-
         <div className="cart-layout">
           <div className="cart-items-section">
             <h2 className="section-title">Your Selection ({cart.length})</h2>
-            
             {cart.length === 0 ? (
               <div className="empty-cart">
                 <p>Your cart is empty.</p>
@@ -154,10 +166,8 @@ const CartPage = ({ cartCount, cart, setCart }) => {
 
           <div className="order-summary-card">
             <h3>Order Summary</h3>
-            
             <div className="shipping-integration-section">
               <label className="summary-label">Shipping Destination</label>
-              
               {savedAddresses.length > 0 && (
                 <select 
                   className="address-select-dropdown"
@@ -172,6 +182,7 @@ const CartPage = ({ cartCount, cart, setCart }) => {
                     }
                   }}
                 >
+                  <option value="" disabled>Select an address</option>
                   {savedAddresses.map(addr => (
                     <option key={addr.id} value={`${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}`}>
                       {addr.label || "Address"} {addr.default ? "(Primary)" : ""}
@@ -190,31 +201,29 @@ const CartPage = ({ cartCount, cart, setCart }) => {
                     onChange={(e) => setShippingAddress(e.target.value)}
                     rows="3"
                   />
-                  <div className="save-address-checkbox">
+                  <div className="save-address-checkbox" style={{marginTop: '10px'}}>
                     <input 
                         type="checkbox" 
-                        id="saveAddress" 
-                        checked={saveThisAddress}
-                        onChange={(e) => setSaveThisAddress(e.target.checked)}
+                        id="saveAddr" 
+                        checked={saveThisAddress} 
+                        onChange={(e) => setSaveThisAddress(e.target.checked)} 
                     />
-                    <label htmlFor="saveAddress">Save to my profile</label>
+                    <label htmlFor="saveAddr" style={{marginLeft: '8px', fontSize: '0.9rem'}}>Save to profile</label>
                   </div>
                 </div>
               )}
             </div>
-
             <hr />
             <div className="summary-row total">
               <span>Total</span>
               <span>${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
-
             <button 
               className="checkout-btn" 
               disabled={cart.length === 0 || isProcessing}
               onClick={handleCheckout}
             >
-              {isProcessing ? "Processing..." : user ? "Secure Checkout" : "Login to Checkout"}
+              {isProcessing ? "Processing..." : token ? "Secure Checkout" : "Login to Checkout"}
             </button>
           </div>
         </div>

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
-import './JewelryCatalog.css'; // Reusing our styles
+import './JewelryCatalog.css';
 
 const AddAddress = ({ cartCount }) => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080') + '/api/addresses';
+  
+  // SECURITY CHANGE: Get token instead of the full user object
+  const token = localStorage.getItem("token");
+  
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
   const [formData, setFormData] = useState({
     label: '',
@@ -19,6 +22,8 @@ const AddAddress = ({ cartCount }) => {
     isDefault: false
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -29,14 +34,38 @@ const AddAddress = ({ cartCount }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // SECURITY GATEKEEPER
+    if (!token) {
+      alert("Your session has expired. Please login again.");
+      navigate('/login');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      // Endpoint: POST /api/addresses/user/{userId}
-      await axios.post(`${API_URL}/user/${user.userId}`, formData);
+      // SECURITY CHANGE: 
+      // 1. Removed /user/${user.userId} from the URL.
+      // 2. Added Authorization header with the Bearer token.
+      await axios.post(`${API_URL}/api/addresses`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
       alert("Address added to your vault successfully!");
-      navigate('/addresses'); // Go back to the list
+      navigate('/addresses'); 
     } catch (err) {
       console.error("Error saving address:", err);
-      alert("Failed to save address. Please try again.");
+      if (err.response?.status === 403) {
+        alert("Session expired. Please log in again.");
+        navigate('/login');
+      } else {
+        alert("Failed to save address. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -111,8 +140,8 @@ const AddAddress = ({ cartCount }) => {
             <label htmlFor="isDefault">Set as primary shipping address</label>
           </div>
 
-          <button type="submit" className="submit-addr-btn">
-            Save to My Vault
+          <button type="submit" className="submit-addr-btn" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save to My Vault"}
           </button>
         </form>
       </div>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // 1. Import Axios
+import axios from 'axios';
 import './JewelryCatalog.css';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // Added loading state
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -16,35 +17,36 @@ const RegisterPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 2. Updated to async to handle the API call
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Frontend validation
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
+    setLoading(true);
     try {
-      // 3. Make the actual POST request to your Spring Boot Backend
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      
+      // The keys here (fullName, email, password) must match your Java User.java fields exactly
       const response = await axios.post(`${API_URL}/api/auth/register`, {
         fullName: formData.fullName,
-        email: formData.email,
+        email: formData.email, 
         password: formData.password
       });
 
-      // 4. Handle success
-      console.log("Server Response:", response.data);
-      alert("Account created successfully! Please login.");
+      console.log("Registration Successful:", response.data);
+      alert("Account created successfully! Welcome to Heritage Gems.");
       navigate('/login');
       
     } catch (err) {
-      // 5. Handle errors (e.g., Email already exists, Server down)
       console.error("Registration Error:", err);
-      const errorMessage = err.response?.data || "Server error. Please try again later.";
+      // Accessing the specific error message sent by your ResponseEntity.badRequest()
+      const errorMessage = err.response?.data || "Connection failed. Is the backend running?";
       alert(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,6 +74,7 @@ const RegisterPage = () => {
               placeholder="John Doe"
               value={formData.fullName}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
 
@@ -84,6 +87,7 @@ const RegisterPage = () => {
               placeholder="name@example.com"
               value={formData.email}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
 
@@ -96,6 +100,7 @@ const RegisterPage = () => {
               placeholder="Min. 8 characters"
               value={formData.password}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
 
@@ -108,11 +113,20 @@ const RegisterPage = () => {
               placeholder="Repeat password"
               value={formData.confirmPassword}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
 
-          <button type="submit" className="login-submit-btn" style={{ background: '#ff4d6d' }}>
-            Register Now
+          <button 
+            type="submit" 
+            className="login-submit-btn" 
+            style={{ 
+                background: loading ? '#ccc' : '#ff4d6d',
+                cursor: loading ? 'not-allowed' : 'pointer' 
+            }}
+            disabled={loading}
+          >
+            {loading ? "Creating Account..." : "Register Now"}
           </button>
         </form>
 

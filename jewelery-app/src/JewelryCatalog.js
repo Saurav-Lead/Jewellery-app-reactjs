@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
-import Footer from './Footer'; // 1. Import the Footer
+import Footer from './Footer';
 import './JewelryCatalog.css';
 import HeritageSkeleton from './HeritageSkeleton';
 
@@ -11,7 +11,10 @@ const JewelryCatalog = ({ cartCount }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
+  
+  // 1. Initialize user from the new storage keys
+  const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail"));
+  const token = localStorage.getItem("token");
 
   const [filters, setFilters] = useState({
     metalType: "All",
@@ -23,16 +26,18 @@ const JewelryCatalog = ({ cartCount }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+    
+    // 2. Fetching products (Public Route)
+    // Note: If you lock products behind security later, 
+    // you would add { headers: { Authorization: `Bearer ${token}` } }
     axios.get(`${API_URL}/api/products`)
       .then(response => {
         setProducts(response.data);
         setLoading(false);
       })
       .catch(err => {
+        console.error("Catalog Fetch Error:", err);
         setError("Unable to load collection.");
         setLoading(false);
       });
@@ -58,11 +63,13 @@ const JewelryCatalog = ({ cartCount }) => {
     });
 
   return (
-    <div className="catalog-page-wrapper"> {/* Flex wrapper to push footer down */}
+    <div className="catalog-page-wrapper">
       <div className="catalog-container">
-        <Navbar cartCount={cartCount} />
+        {/* Pass userEmail to Navbar to show "Welcome, [Email]" or Profile icon */}
+        <Navbar cartCount={cartCount} userEmail={userEmail} />
 
         <div className="search-filter-hub">
+          {/* ... Search bar and filters remain the same ... */}
           <div className="search-bar-standalone">
             <input 
               type="text" 
@@ -106,41 +113,45 @@ const JewelryCatalog = ({ cartCount }) => {
           </div>
         </div>
 
-        <div className="product-grid">
-          {loading ? (
-            <HeritageSkeleton type="card" count={8} />
-          ) : (
-            filteredProducts.map((item) => (
-              <div key={item.productId} className="product-card">
-                <div className="product-image-container">
-                  <img 
-                    src={item.imageUrl || 'https://via.placeholder.com/300'} 
-                    alt={item.productName} 
-                    className="product-image"
-                  />
-                </div>
-                <div className="metal-badge">{item.metalPurity} {item.metalType}</div>
-                <div className="product-info">
-                  <h3>{item.productName}</h3>
-                  <p className="category">{item.category?.name || 'Fine Jewelry'}</p>
-                  <div className="price-tag">
-                    ${Number(item.shelfPrice || item.ShelfPrice || 0).toLocaleString()}
+        {error ? (
+           <div className="error-message">{error}</div>
+        ) : (
+          <div className="product-grid">
+            {loading ? (
+              <HeritageSkeleton type="card" count={8} />
+            ) : (
+              filteredProducts.map((item) => (
+                <div key={item.productId} className="product-card">
+                  <div className="product-image-container">
+                    <img 
+                      src={item.imageUrl || 'https://via.placeholder.com/300'} 
+                      alt={item.productName} 
+                      className="product-image"
+                    />
                   </div>
-                  <button className="view-btn" onClick={() => navigate(`/product/${item.productId}`)}>
-                    View Details
-                  </button>
+                  <div className="metal-badge">{item.metalPurity} {item.metalType}</div>
+                  <div className="product-info">
+                    <h3>{item.productName}</h3>
+                    <p className="category">{item.category?.name || 'Fine Jewelry'}</p>
+                    <div className="price-tag">
+                      ${Number(item.shelfPrice || item.ShelfPrice || 0).toLocaleString()}
+                    </div>
+                    <button className="view-btn" onClick={() => navigate(`/product/${item.productId}`)}>
+                      View Details
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
         
-        {filteredProducts.length === 0 && !loading && (
+        {filteredProducts.length === 0 && !loading && !error && (
           <p className="no-results">No jewelry matches your refined search.</p>
         )}
       </div>
 
-      {/* 2. Place Footer outside of catalog-container if you want it full-width */}
+      
     </div>
   );
 };
